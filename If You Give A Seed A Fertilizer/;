@@ -1,0 +1,63 @@
+const fs = require('fs');
+
+input = fs.readFileSync("day5.txt", "utf8");
+
+const seedMap = {};
+const topics = ["seeds", "seed-to-soil", "soil-to-fertilizer", "fertilizer-to-water", "water-to-light", "light-to-temperature", "temperature-to-humidity", "humidity-to-location"];
+const mappings = {};
+for (i in topics) {
+  const start = input.indexOf(topics[i])
+  const end = input.indexOf(topics[parseInt(i) + 1]);
+  mappings[topics[i].trim()] = input.slice(start, end).trim().split(/:\s+/)[1]
+}
+for (let seed of mappings["seeds"].split(/\s/)) {
+  let found = false;
+  for (let soil of mappings["seed-to-soil"].split("\n")) {
+    let seedBase = parseInt(soil.split(" ")[1]);
+    let soilBase = parseInt(soil.split(" ")[0]);
+    let range = parseInt(soil.split(" ")[2]);
+    if (parseInt(seed) >= seedBase && parseInt(seed) <= seedBase + range && !found) {
+      found = true;
+      seedMap[seed] = parseInt(seed) - seedBase + soilBase;
+
+    }
+    else {
+      seedMap[seed] = seed;
+    }
+  }
+}
+for (let i in seedMap) {
+  let found = false
+  for (let ferilizer of mappings["soil-to-fertilizer"].split("\n")) {
+    let soilBase = parseInt(ferilizer.split(" ")[1]);
+    let fertilizerBase = parseInt(ferilizer.split(" ")[0]);
+    let range = parseInt(ferilizer.split(" ")[2]);
+    if (parseInt(seedMap[i]) >= soilBase && parseInt(seedMap[i]) <= soilBase + range && !found) {
+      seedMap[i] = parseInt(seedMap[i]) - soilBase + fertilizerBase;
+    }
+    else {
+      seedMap[i] = seedMap[i]
+    }
+  }
+}
+for (let i in seedMap) {
+  let found = false
+  for (let water of mappings["fertilizer-to-water"].split("\n")) {
+    let fertilizerBase = parseInt(water.split(" ")[1]);
+    let waterBase = parseInt(water.split(" ")[0]);
+    let range = parseInt(water.split(" ")[2]);
+    if (parseInt(seedMap[i]) >= fertilizerBase && parseInt(seedMap[i]) <= fertilizerBase + range && !found) {
+      seedMap[i] = parseInt(seedMap[i]) - fertilizerBase + waterBase;
+      if (seedMap[i] === 57) {
+        seedMap[i] = parseInt(seedMap[i]) - fertilizerBase + waterBase;
+        console.log(seedMap[i], waterBase, fertilizerBase, range)
+      }
+    }
+    else {
+      seedMap[i] = seedMap[i]
+    }
+  }
+}
+
+console.log(mappings["fertilizer-to-water"].split("\n"))
+
